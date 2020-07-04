@@ -41,7 +41,7 @@ def device_profile():
     # function returns a JSON object that describes the device this script is being run on
     return device_json
 ###############
-#device_profile()
+print(device_profile())
 
 
 ###############
@@ -94,7 +94,7 @@ def gen_rsa_key():
     print(decrypted_plain_text)
     # start sending encrypted data via process_telemtry() function
     # verify signature
-    result = public_key.verify(
+    verification_result = public_key.verify(
         signed_message,
         message,
         padding.PSS(
@@ -103,7 +103,7 @@ def gen_rsa_key():
         ),
         hashes.SHA256()
     )
-    print(result)
+    print(verification_result)
 ###############
 gen_rsa_key()
 
