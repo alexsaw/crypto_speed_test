@@ -15,6 +15,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 # /dependencies
 
 ###############
@@ -37,11 +38,12 @@ def device_profile():
         "mac_address": get_mac()
     }
     # convert the dictionary into a proper JSON object
-    device_json = json.dumps(device_data, indent=4, sort_keys=False)
-    # function returns a JSON object that describes the device this script is being run on
-    return device_json
+    # device_json = json.dumps(device_data, indent=4, sort_keys=False)
+    
+    # function returns a JSON object or dict (if json.dumps() is commented) that describes the device this script is being run on
+    return device_data
 ###############
-print(device_profile())
+#print(device_profile())
 
 
 ###############
@@ -78,21 +80,6 @@ def gen_rsa_key():
         ),
             hashes.SHA256()
         )
-    # symmetric key setup
-    key = os.urandom(32)
-    iv = os.urandom(16)
-    algorithm = algorithms.AES(key)
-    mode_of_operation = modes.CBC(iv)
-    # generate symmetric cipher (I want to make this cycle through a few encryption types and cipher modes)
-    cipher = Cipher(algorithm, mode_of_operation, backend=backend)
-    encryptor = cipher.encryptor() 
-    plain_text = b"a secret message"
-    cipher_text = encryptor.update(plain_text) + encryptor.finalize()
-    # test decryption of the 
-    decryptor = cipher.decryptor()
-    decrypted_plain_text = decryptor.update(cipher_text) + decryptor.finalize()
-    print(decrypted_plain_text)
-    # start sending encrypted data via process_telemtry() function
     # verify signature
     verification_result = public_key.verify(
         signed_message,
@@ -108,21 +95,118 @@ def gen_rsa_key():
 gen_rsa_key()
 
 
+
+
+###############
+# Encrypt 1000x with three different algorithms (AES, 3DES, Blowfish) and the mode, CBC (Cipher Block Chaining)
+def symmetric_encryption(algo):
+    # symmetric key setup and crypto library required variables
+    backend = default_backend()
+    iv = os.urandom(16)
+    algorithm = algo['algo']
+    mode_of_operation = algo['mode']
+    # generate symmetric cipher (I want to make this cycle through a few encryption types and cipher modes)
+    cipher = Cipher(algorithm, mode_of_operation, backend=backend)
+    encryptor = cipher.encryptor() 
+    plain_text = b'a secret message'
+    cipher_text = encryptor.update(plain_text) + encryptor.finalize()
+    
+    # test decryption of the 
+    # decryptor = cipher.decryptor()
+    # decrypted_plain_text = decryptor.update(cipher_text) + decryptor.finalize()
+    # start sending encrypted data via process_telemtry() function
+    return cipher_text
+
+
+
 ###############
 # process sensor telemetry (encrypt and send to database)
-def process_telemetry(simulator_output, device_details):
-    # record start time
-    start_time = int(round(time.time() * 1000))
-    # bring in random data to simulate data ingested by a connected sensor
-    # encrypt the data
-    # connect to database
-    # record end time
-    end_time = int(round(time.time() * 1000))
-    print(end_time)
-    # subtract end from start time
-    total_time = end_time = start_time
+def process_telemetry(device_details):
+    # initialize row for database entry
+    new_row = {
+        "device": device_details,
+        "algo": None,
+        "start_time": None,
+        "end_time": None,
+        "total_time": None,
+        "sensor_data": "b'a secret message'",
+        "cypher_text": None,
+        "test_number": None
+    }
+    # convert the dictionary into a proper JSON object
+    # json_row = json.dumps(new_row, indent=4, sort_keys=False)
+    # generate keys
+    backend = default_backend()   
+    salt = os.urandom(16)
+    # AES key derivation fucntion and key
+    aes_kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=salt,
+        iterations=100000,
+        backend=backend
+    )
+    aes_key = aes_kdf.derive(b"password")
+    # 3DES key derivation fucntion and key
+    des3_kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=24,
+        salt=salt,
+        iterations=100000,
+        backend=backend
+    )
+    des3_key = des3_kdf.derive(b"password")
+    # SEED key derivation fucntion and key
+    seed_kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=16,
+        salt=salt,
+        iterations=100000,
+        backend=backend
+    )
+    seed_key = seed_kdf.derive(b"password")
+
+    # cycle through three encryption algorithms (AES, 3DES, and SEED)
+    algos = {
+        "AES": {
+            'algo': algorithms.AES(aes_key),
+            'mode': modes.CBC(os.urandom(16)) 
+        },
+        "3DES": {
+            'algo': algorithms.TripleDES(des3_key),
+            'mode': modes.CBC(os.urandom(8))
+        },
+        "SEED": {
+            'algo': algorithms.SEED(seed_key),
+            'mode': modes.CBC(os.urandom(16))
+        }
+    }
+    for selected_algo in algos:
+        # go through each algorithm and run the test for each one 10x
+        times_to_repeat = 10
+        i = 0
+        new_row['algo'] = selected_algo
+        while times_to_repeat >= i:
+            # choose an algorithm for the test
+            algorithm_with_key = algos[selected_algo]
+            # record start time
+            new_row['start_time'] = int(round(time.time() * 100000))
+            # encrypt the data
+            new_row['cypher_text'] = symmetric_encryption(algorithm_with_key)[0]
+            # connect to database
+            # record end time
+            new_row['end_time'] = int(round(time.time() * 100000))
+            # subtract end from start time
+            new_row['total_time'] = (new_row['end_time'] - new_row['start_time'])
+            # record test number
+            new_row['test_number'] = i
+            # decrement counter
+            i += 1
+            # print result
+            print("%s on attempt %d took %d \t cyphertext is %s"%(selected_algo, i, new_row['total_time'], new_row['cypher_text']))
+            # print("%s \n"%new_row)
 ###############
-#process_telemetry(x,y)
+process_telemetry(device_profile())
 
 
 ###############
