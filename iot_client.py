@@ -45,18 +45,6 @@ def device_profile():
 ###############
 #print(device_profile())
 
-
-###############
-# Deliver sensor events as quickly as you want to simulate a sensor event
-def sensor_simulator(event_frequency):
-    events = 1000
-    while events >= 0:
-        
-        events -= 1
-###############
-#sensor_simulator(x)
-
-
 ###############
 # generate a private key
 def gen_rsa_key():
@@ -94,9 +82,6 @@ def gen_rsa_key():
 ###############
 gen_rsa_key()
 
-
-
-
 ###############
 # Encrypt 1000x with three different algorithms (AES, 3DES, Blowfish) and the mode, CBC (Cipher Block Chaining)
 def symmetric_encryption(algo):
@@ -116,8 +101,8 @@ def symmetric_encryption(algo):
     # decrypted_plain_text = decryptor.update(cipher_text) + decryptor.finalize()
     # start sending encrypted data via process_telemtry() function
     return cipher_text
-
-
+###############
+#symmetric_encryption()
 
 ###############
 # process sensor telemetry (encrypt and send to database)
@@ -192,7 +177,7 @@ def process_telemetry(device_details):
             # record start time
             new_row['start_time'] = int(round(time.time() * 100000))
             # encrypt the data
-            new_row['cypher_text'] = symmetric_encryption(algorithm_with_key)[0]
+            new_row['cypher_text'] = symmetric_encryption(algorithm_with_key)
             # connect to database
             # record end time
             new_row['end_time'] = int(round(time.time() * 100000))
@@ -203,6 +188,7 @@ def process_telemetry(device_details):
             # decrement counter
             i += 1
             # print result
+            print(new_row['cypher_text'])
             print("%s on attempt %d took %d \t cyphertext is %s"%(selected_algo, i, new_row['total_time'], new_row['cypher_text']))
             # print("%s \n"%new_row)
 ###############
