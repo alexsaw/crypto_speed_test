@@ -18,6 +18,11 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 # /dependencies
 
+# file dependencies
+import random
+# /file dependencies
+
+
 ###############
 # identify the device this is running on
 def device_profile():
@@ -175,12 +180,12 @@ def process_telemetry(device_details):
             # choose an algorithm for the test
             algorithm_with_key = algos[selected_algo]
             # record start time
-            new_row['start_time'] = int(round(time.time() * 100000))
+            new_row['start_time'] = int(round(time.time() * 10000000))
             # encrypt the data
             new_row['cypher_text'] = symmetric_encryption(algorithm_with_key)
             # connect to database
             # record end time
-            new_row['end_time'] = int(round(time.time() * 100000))
+            new_row['end_time'] = int(round(time.time() * 10000000))
             # subtract end from start time
             new_row['total_time'] = (new_row['end_time'] - new_row['start_time'])
             # record test number
@@ -188,8 +193,7 @@ def process_telemetry(device_details):
             # decrement counter
             i += 1
             # print result
-            print(new_row['cypher_text'])
-            print("%s on attempt %d took %d \t cyphertext is %s"%(selected_algo, i, new_row['total_time'], new_row['cypher_text']))
+            print("%s on attempt %d took %d"%(selected_algo, i, new_row['total_time']))
             # print("%s \n"%new_row)
 ###############
 process_telemetry(device_profile())
