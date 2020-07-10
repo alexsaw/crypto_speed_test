@@ -24,7 +24,7 @@ def tests(device_details, encryption_function):
     # generate keys
     backend = default_backend()   
     salt = os.urandom(16)
-    # AES key derivation fucntion and key
+    # AES key derivation function and key
     aes_kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
