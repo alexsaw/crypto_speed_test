@@ -88,8 +88,10 @@ def tests(device_details, encryption_function):
             new_row['test_number'] = i
             # decrement counter
             i += 1
+
             # print result
-            print("%s on attempt %d took %d"%(selected_algo, i, new_row['total_time']))
-            # print("%s \n"%new_row)
+            print("----\n%s algorithm on attempt %d took %d"%(selected_algo, i, new_row['total_time']))
+            print("RAW ROW DATA %s ATTEMPT %d: %s"%(selected_algo,i,new_row))
+
 ###############
 #process_telemetry(device_profile())
