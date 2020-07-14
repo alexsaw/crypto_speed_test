@@ -54,9 +54,25 @@ def tests(device_details, encryption_function):
 
     # cycle through three encryption algorithms (AES, 3DES, and SEED)
     algos = {
-        "AES": {
+        "AES_CBC": {
             'algo': algorithms.AES(aes_key),
             'mode': modes.CBC(os.urandom(16)) 
+        },
+        "AES_ECB": {
+            'algo': algorithms.AES(aes_key),
+            'mode': modes.ECB() 
+        },
+        "AES_CFB": {
+            'algo': algorithms.AES(aes_key),
+            'mode': modes.CFB(os.urandom(16)) 
+        },
+        "AES_CTR": {
+            'algo': algorithms.AES(aes_key),
+            'mode': modes.CTR(os.urandom(16)) 
+        },
+        "AES_OFB": {
+            'algo': algorithms.AES(aes_key),
+            'mode': modes.OFB(os.urandom(16)) 
         },
         "3DES": {
             'algo': algorithms.TripleDES(des3_key),
@@ -67,11 +83,13 @@ def tests(device_details, encryption_function):
             'mode': modes.CBC(os.urandom(16))
         }
     }
+    print("Algorithm,Average")
     for selected_algo in algos:
         # go through each algorithm and run the test for each one 10x
         times_to_repeat = 10
         i = 0
         new_row['algo'] = selected_algo
+        total_run_time = 0
         while times_to_repeat >= i:
             # choose an algorithm for the test
             algorithm_with_key = algos[selected_algo]
@@ -88,10 +106,12 @@ def tests(device_details, encryption_function):
             new_row['test_number'] = i
             # decrement counter
             i += 1
+            total_run_time += new_row['total_time']
 
             # print result
-            print("----\n%s algorithm on attempt %d took %d"%(selected_algo, i, new_row['total_time']))
-            print("RAW ROW DATA %s ATTEMPT %d: %s"%(selected_algo,i,new_row))
+            #print("----\n%s algorithm on attempt %d took %d"%(selected_algo, i, new_row['total_time']))
+            #print("RAW ROW DATA %s ATTEMPT %d: %s"%(selected_algo,i,new_row))
+        print(selected_algo+","+str(total_run_time/(times_to_repeat+1)))
 
 ###############
 #process_telemetry(device_profile())
