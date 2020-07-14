@@ -8,7 +8,7 @@ from uuid import getnode as get_mac
 def get_profile():
     # create devide profile object
     device_data = {
-        # operating system 
+        # operating system
         "os": {
             # identify device os
             "name": platform.system(),
@@ -24,8 +24,8 @@ def get_profile():
     }
     # convert the dictionary into a proper JSON object
     # device_json = json.dumps(device_data, indent=4, sort_keys=False)
-    
+
     # function returns a JSON object or dict (if json.dumps() is commented) that describes the device this script is being run on
     return device_data
 ###############
-#print(device_profile())
+print(get_profile())

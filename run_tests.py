@@ -20,9 +20,9 @@ def tests(device_details, encryption_function):
         "test_number": None
     }
     # convert the dictionary into a proper JSON object
-    # json_row = json.dumps(new_row, indent=4, sort_keys=False)
+    #json_row = json.dumps(device_details, indent=4, sort_keys=False)
     # generate keys
-    backend = default_backend()   
+    backend = default_backend()
     salt = os.urandom(16)
     # AES key derivation function and key
     aes_kdf = PBKDF2HMAC(
@@ -112,6 +112,5 @@ def tests(device_details, encryption_function):
             #print("----\n%s algorithm on attempt %d took %d"%(selected_algo, i, new_row['total_time']))
             #print("RAW ROW DATA %s ATTEMPT %d: %s"%(selected_algo,i,new_row))
         print(selected_algo+","+str(total_run_time/(times_to_repeat+1)))
-
 ###############
 #process_telemetry(device_profile())
