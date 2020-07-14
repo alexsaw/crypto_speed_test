@@ -20,7 +20,7 @@ def tests(device_details, encryption_function):
         "test_number": None
     }
     # convert the dictionary into a proper JSON object
-    #json_row = json.dumps(device_details, indent=4, sort_keys=False)
+    # device_data = json.dumps(device_details, indent=4, sort_keys=False)
     # generate keys
     backend = default_backend()
     salt = os.urandom(16)
