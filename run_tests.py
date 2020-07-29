@@ -83,10 +83,10 @@ def tests(device_details, encryption_function):
             'mode': modes.CBC(os.urandom(16))
         }
     }
-    print("Algorithm,Average")
+    print("Device MAC Address, Device OS, OS Release, Processor, Algorithm,Average")
     for selected_algo in algos:
         # go through each algorithm and run the test for each one 10x
-        times_to_repeat = 10
+        times_to_repeat = 10000
         i = 0
         new_row['algo'] = selected_algo
         total_run_time = 0
@@ -111,6 +111,6 @@ def tests(device_details, encryption_function):
             # print result
             #print("----\n%s algorithm on attempt %d took %d"%(selected_algo, i, new_row['total_time']))
             #print("RAW ROW DATA %s ATTEMPT %d: %s"%(selected_algo,i,new_row))
-        print(selected_algo+","+str(total_run_time/(times_to_repeat+1)))
+        print("%s, %s, %s, %s, %s, %s"%(device_details()['mac_address'], device_details()['os']['name'], device_details()['os']['release'], device_details()['processor'], selected_algo, str(total_run_time/(times_to_repeat+1))))
 ###############
 #process_telemetry(device_profile())
