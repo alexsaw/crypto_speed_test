@@ -28,4 +28,3 @@ def get_profile():
     # function returns a JSON object or dict (if json.dumps() is commented) that describes the device this script is being run on
     return device_data
 ###############
-print(get_profile())
